@@ -1,0 +1,28 @@
+# Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Virtual environments ---
+venv/
+.venv/
+env/
+ENV/
+
+# Tool output (screenshots, results, logs) ---
+# These are generated per-run and can contain scan targets/results.
+recon_scan_*/
+*.log
+
+# Real target lists (keep them out of the repo) ---
+# The committed sample is urls.example.txt; your working file stays local.
+urls.txt
+
+# OS / editor cruft ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp

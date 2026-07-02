@@ -13,6 +13,3 @@ pillow>=10.1.0
 opencv-python>=4.8.1
 numpy>=1.24.0
 
-# NOTE: python-Wappalyzer is intentionally NOT used. It is archived/unmaintained
-# with a stale fingerprint database. Technology detection is handled by the
-# built-in signature engine in recon_tool.py (headers + cookies + rendered DOM).

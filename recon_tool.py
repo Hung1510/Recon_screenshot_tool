@@ -43,9 +43,9 @@ import traceback
 from html import escape as _html_escape
 from urllib.parse import urlparse
 
-# ---------------------------------------------------------------------------
+# ---
 # Third-party imports (hard deps)
-# ---------------------------------------------------------------------------
+# ---
 try:
     import requests
     from bs4 import BeautifulSoup
@@ -83,9 +83,9 @@ except Exception:
     pass
 
 
-# ---------------------------------------------------------------------------
+# ---
 # Configuration
-# ---------------------------------------------------------------------------
+# ---
 DEFAULT_WORKERS = 5
 DEFAULT_DELAY = 0.5          # seconds a worker sleeps after each URL
 DEFAULT_TIMEOUT = 15         # Chrome page-load timeout (seconds)
@@ -108,14 +108,14 @@ DEFAULT_URLS = [
 ]
 
 
-# ---------------------------------------------------------------------------
+# ---
 # Technology fingerprint engine  (replaces the dead python-Wappalyzer)
-# ---------------------------------------------------------------------------
+# ---
 # Each entry: name -> {"headers": {header: regex}, "cookies": [regex],
 #                      "html": [regex], "scripts": [regex], "meta": [regex]}
 # Matching is case-insensitive. Any single hit tags the technology.
 TECH_SIGNATURES = {
-    # --- CMS ---------------------------------------------------------------
+    # CMS ----
     "WordPress": {"html": [r"wp-content", r"wp-includes"],
                   "meta": [r"WordPress"],
                   "headers": {"link": r"wp-json"}},
@@ -130,7 +130,7 @@ TECH_SIGNATURES = {
     "Squarespace": {"html": [r"static1\.squarespace\.com", r"squarespace\.com"]},
     "Magento": {"html": [r"/static/version\d", r"Mage\.", r"mage/cookies"],
                 "cookies": [r"X-Magento"]},
-    # --- JS frameworks / libraries ----------------------------------------
+    # JS frameworks / libraries ---------
     "React": {"html": [r"data-reactroot", r"data-reactid", r"__REACT_DEVTOOLS",
                        r"/react(?:\.production)?\.min\.js"]},
     "Next.js": {"html": [r"/_next/static", r"__NEXT_DATA__"],
@@ -142,7 +142,7 @@ TECH_SIGNATURES = {
     "jQuery": {"scripts": [r"jquery[.-][\d.]+(?:\.min)?\.js", r"/jquery\.js"]},
     "Bootstrap": {"html": [r"bootstrap(?:\.min)?\.css", r"class=\"[^\"]*\b(?:navbar|col-md-|btn-primary)\b"]},
     "Tailwind CSS": {"html": [r"class=\"[^\"]*\b(?:flex|grid|px-\d|py-\d|bg-\w+-\d00)\b"]},
-    # --- Web servers / proxies / CDNs -------------------------------------
+    # Web servers / proxies / CDNs ------
     "Nginx": {"headers": {"server": r"nginx"}},
     "Apache": {"headers": {"server": r"Apache"}},
     "Microsoft IIS": {"headers": {"server": r"IIS", "x-powered-by": r"ASP\.NET"}},
@@ -150,13 +150,13 @@ TECH_SIGNATURES = {
     "Cloudflare": {"headers": {"server": r"cloudflare", "cf-ray": r".+"}},
     "Amazon CloudFront": {"headers": {"via": r"CloudFront", "x-amz-cf-id": r".+"}},
     "Varnish": {"headers": {"via": r"varnish", "x-varnish": r".+"}},
-    # --- Languages / runtimes ---------------------------------------------
+    # Languages / runtimes -
     "PHP": {"headers": {"x-powered-by": r"PHP", "set-cookie": r"PHPSESSID"}},
     "ASP.NET": {"headers": {"x-aspnet-version": r".+", "x-powered-by": r"ASP\.NET"},
                 "cookies": [r"ASP\.NET_SessionId"]},
     "Express": {"headers": {"x-powered-by": r"Express"}},
     "Node.js": {"headers": {"x-powered-by": r"Express|Next\.js"}},
-    # --- Analytics / tag managers -----------------------------------------
+    # Analytics / tag managers ----------
     "Google Analytics": {"html": [r"google-analytics\.com/(?:ga|analytics)", r"gtag\(", r"GoogleAnalyticsObject"]},
     "Google Tag Manager": {"html": [r"googletagmanager\.com/gtm"]},
     "Cloudflare Turnstile": {"html": [r"challenges\.cloudflare\.com/turnstile"]},
@@ -212,9 +212,9 @@ def fingerprint_technologies(html: str, headers: dict, cookies: str) -> list:
     return sorted(detected)
 
 
-# ---------------------------------------------------------------------------
+# ---
 # Driver management (thread-local: one Chrome per worker thread, reused)
-# ---------------------------------------------------------------------------
+# ---
 _thread_local = threading.local()
 _driver_registry = []          # every driver we create, for clean shutdown
 _registry_lock = threading.Lock()
@@ -280,9 +280,9 @@ def shutdown_all_drivers():
         _driver_registry.clear()
 
 
-# ---------------------------------------------------------------------------
+# ---
 # Helpers
-# ---------------------------------------------------------------------------
+# ---
 def sanitize_filename(url: str) -> str:
     """Turn a URL into a safe, mostly-readable file stem."""
     parsed = urlparse(url if "://" in url else "http://" + url)
@@ -387,9 +387,9 @@ def fetch_headers(url: str, timeout: int) -> tuple:
         return {}, ""
 
 
-# ---------------------------------------------------------------------------
+# ---
 # Detection
-# ---------------------------------------------------------------------------
+# ---
 def detect_login(soup: "BeautifulSoup", page_source: str, title: str,
                  visible_text: str) -> bool:
     # Strongest signal: a password field.
@@ -451,9 +451,9 @@ def analyze_page(driver: "webdriver.Chrome", url: str) -> dict:
     }
 
 
-# ---------------------------------------------------------------------------
+# ---
 # Per-URL pipeline
-# ---------------------------------------------------------------------------
+# ---
 def process_url(url: str, output_dir: str, session_id: str, cfg: dict) -> dict:
     """Full pipeline for a single URL. Never raises; returns a record dict."""
     shots_dir = os.path.join(output_dir, "screenshots")
@@ -533,9 +533,9 @@ def process_url(url: str, output_dir: str, session_id: str, cfg: dict) -> dict:
     return record
 
 
-# ---------------------------------------------------------------------------
+# ---
 # Gallery
-# ---------------------------------------------------------------------------
+# ---
 def generate_gallery(data_list: list, output_dir: str) -> str:
     """Build a self-contained responsive HTML gallery. Returns its path."""
     total = len(data_list)
@@ -753,9 +753,9 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 </html>"""
 
 
-# ---------------------------------------------------------------------------
+# ---
 # Session / resume helpers
-# ---------------------------------------------------------------------------
+# ---
 def load_existing_records(output_dir: str) -> list:
     path = os.path.join(output_dir, "results.jsonl")
     records = []
@@ -781,9 +781,9 @@ def find_latest_session(base: str = ".") -> str | None:
     return os.path.join(base, dirs[-1])
 
 
-# ---------------------------------------------------------------------------
+# ---
 # Main
-# ---------------------------------------------------------------------------
+# ---
 def parse_args(argv=None):
     p = argparse.ArgumentParser(
         description="Bulk recon screenshot + detection + HTML gallery (Phase 1).")
@@ -831,7 +831,7 @@ def main(argv=None):
     print("  [i] Placeholder images (Pillow): {}".format("ON" if _HAVE_PIL else "off (pillow not installed)"))
     print("  [!] Only scan assets you own or are authorised to test.\n")
 
-    # --- input file --------------------------------------------------------
+    # input file 
     if not os.path.exists(args.urls):
         with open(args.urls, "w", encoding="utf-8") as fh:
             fh.write("# One URL per line. Lines starting with # are ignored.\n")
@@ -845,7 +845,7 @@ def main(argv=None):
         print("  [!] No usable URLs in '{}'.".format(args.urls))
         return 1
 
-    # --- worker / delay config --------------------------------------------
+    # worker / delay config 
     if args.workers is None:
         workers = DEFAULT_WORKERS if args.yes else prompt_int("  Concurrent workers", DEFAULT_WORKERS)
     else:
@@ -856,7 +856,7 @@ def main(argv=None):
         delay = args.delay
     workers = max(1, workers)
 
-    # --- session directory (new or resumed) -------------------------------
+    # session directory (new or resumed) 
     if args.resume:
         output_dir = find_latest_session()
         if not output_dir:
@@ -891,7 +891,7 @@ def main(argv=None):
         "driver_path": args.driver_path,
     }
 
-    # --- process -----------------------------------------------------------
+    # process 
     start = time.time()
     try:
         if todo:
@@ -911,7 +911,7 @@ def main(argv=None):
 
     elapsed = time.time() - start
 
-    # --- assemble outputs --------------------------------------------------
+    # assemble outputs ------
     records = load_existing_records(output_dir)
     # Stable order: follow the original urls.txt ordering where possible.
     order = {u: i for i, u in enumerate(urls)}
