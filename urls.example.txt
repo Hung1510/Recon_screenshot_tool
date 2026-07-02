@@ -1,0 +1,7 @@
+# One URL per line. Blank lines and lines starting with # are ignored.
+# Duplicates are removed automatically. http:// is added if you omit the scheme.
+# Only list assets you own or are authorised to test.
+
+https://example.com
+https://www.wikipedia.org
+https://github.com/login
