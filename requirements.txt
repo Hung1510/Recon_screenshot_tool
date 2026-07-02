@@ -1,0 +1,18 @@
+# Phase 1 - core dependencies
+selenium>=4.15.0
+webdriver-manager>=4.0.1
+beautifulsoup4>=4.12.2
+lxml>=4.9.3
+requests>=2.31.0
+tqdm>=4.66.0
+
+# Placeholder images for failed/blank pages
+pillow>=10.1.0
+
+# Optional: blank-screenshot detection (script runs fine without it)
+opencv-python>=4.8.1
+numpy>=1.24.0
+
+# NOTE: python-Wappalyzer is intentionally NOT used. It is archived/unmaintained
+# with a stale fingerprint database. Technology detection is handled by the
+# built-in signature engine in recon_tool.py (headers + cookies + rendered DOM).
